@@ -15,17 +15,27 @@ background:#000;
 color:#cfc;
 font-family:'Roboto Mono', monospace;
 margin:0;
+text-align:center;
+}
+
+h1{
+margin-top:20px;
+}
+
+#subtitle{
+margin-bottom:20px;
+color:#9f9;
 }
 
 #layout{
 display:flex;
 justify-content:center;
 gap:30px;
-padding-top:30px;
+padding-top:10px;
 }
 
 #leftpanel{
-width:180px;
+width:200px;
 }
 
 .panel{
@@ -76,7 +86,7 @@ align-items:center;
 justify-content:center;
 border:3px solid transparent;
 cursor:pointer;
-transition:0.4s;
+transition:0.3s;
 }
 
 .cold{color:#0f0;}
@@ -87,6 +97,12 @@ transition:0.4s;
 .mine{
 border:3px solid #7fffd4;
 box-shadow:0 0 8px #7fffd4;
+}
+
+.win{
+background:#ffd700;
+color:#000;
+font-weight:bold;
 }
 
 .blink{
@@ -119,31 +135,23 @@ animation:flash .4s 3;
 100%{transform:scale(1)}
 }
 
-.winflash{
-animation:winflash .4s 3;
-}
-
-@keyframes winflash{
-0%{opacity:1}
-50%{opacity:0.1}
-100%{opacity:1}
-}
-
 </style>
 </head>
 
 <body>
 
-<div style="color:#9f9; text-align:center; max-width:520px; margin:auto; margin-top:10px; font-size:15px; line-height:1.4;">
+<h1>Strategy Lottery</h1>
 
-<b>HOW TO WIN</b><br><br>
+<div id="subtitle">
+The first Crowd Prediction Lottery
+</div>
 
+<div style="margin-bottom:20px">
+HOW TO WIN<br>
 1. Select 6 numbers<br>
 2. Try to avoid numbers other players choose<br>
 3. The least popular combination wins the jackpot<br><br>
-
-You are playing against <b>5 competing players</b>.
-
+You are playing against <b>5 simulated players</b>.
 </div>
 
 <div id="layout">
@@ -194,18 +202,15 @@ You are playing against <b>5 competing players</b>.
 
 let players=5
 let jackpot=Math.floor(players*0.8)
-let operator=Math.floor(players*0.2)
 
 let time=120
 
 let selected=[]
-let replaceTarget=null
 let submitted=false
 
 let popularity=new Array(49).fill(0)
 
 let history=[]
-
 let cells=[]
 
 const grid=document.getElementById("grid")
@@ -213,33 +218,19 @@ const grid=document.getElementById("grid")
 for(let i=1;i<=49;i++){
 
 let cell=document.createElement("div")
-
 cell.className="number cold"
-
 cell.innerText=i.toString().padStart(2,"0")
 
-cell.onclick=()=>clickNumber(i)
+cell.onclick=()=>{
 
-grid.appendChild(cell)
+if(selected.includes(i)){
 
-cells.push(cell)
-
-}
-
-function clickNumber(n){
-
-let cell=cells[n-1]
-
-if(!submitted){
-
-if(selected.includes(n)){
-
-selected=selected.filter(x=>x!==n)
+selected=selected.filter(x=>x!==i)
 cell.classList.remove("mine")
 
 }else if(selected.length<6){
 
-selected.push(n)
+selected.push(i)
 cell.classList.add("mine")
 cell.classList.add("blink")
 
@@ -247,47 +238,19 @@ cell.classList.add("blink")
 
 }
 
-else{
-
-if(replaceTarget==null){
-
-if(selected.includes(n)){
-
-replaceTarget=n
-
-}
-
-}
-
-else{
-
-cells[replaceTarget-1].classList.remove("mine")
-
-let idx=selected.indexOf(replaceTarget)
-
-selected[idx]=n
-
-cell.classList.add("mine")
-
-replaceTarget=null
-
-}
-
-}
+grid.appendChild(cell)
+cells.push(cell)
 
 }
 
 function submitTicket(){
 
 if(selected.length!=6){
-
 alert("Select 6 numbers")
 return
-
 }
 
 submitted=true
-
 cells.forEach(c=>c.classList.remove("blink"))
 
 document.getElementById("submit").classList.add("flash")
@@ -297,7 +260,6 @@ document.getElementById("submit").classList.add("flash")
 function simulate(){
 
 popularity=new Array(49).fill(0)
-
 let tickets=[]
 
 for(let p=0;p<players;p++){
@@ -313,7 +275,6 @@ if(!nums.includes(n)) nums.push(n)
 }
 
 nums.forEach(x=>popularity[x-1]++)
-
 tickets.push(nums.sort((a,b)=>a-b).join("-"))
 
 }
@@ -321,7 +282,6 @@ tickets.push(nums.sort((a,b)=>a-b).join("-"))
 if(submitted){
 
 selected.forEach(x=>popularity[x-1]++)
-
 tickets.push(selected.slice().sort((a,b)=>a-b).join("-"))
 
 }
@@ -329,10 +289,8 @@ tickets.push(selected.slice().sort((a,b)=>a-b).join("-"))
 let freq={}
 
 tickets.forEach(t=>{
-
 if(!freq[t]) freq[t]=0
 freq[t]++
-
 })
 
 let min=999
@@ -375,9 +333,7 @@ function updateHotCold(){
 let arr=[]
 
 for(let i=0;i<49;i++){
-
 arr.push({n:i+1,v:popularity[i]})
-
 }
 
 arr.sort((a,b)=>b.v-a.v)
@@ -416,50 +372,31 @@ function endRound(){
 
 let winner=simulate()
 
-let playerTicket=selected.slice().sort((a,b)=>a-b).join("-")
+let nums=winner.split("-").map(Number)
 
-let playerWins=false
+cells.forEach(c=>c.classList.remove("win"))
 
-if(submitted && Math.random()<0.15){
-
-winner=playerTicket
-playerWins=true
-
-}
+nums.forEach(n=>{
+cells[n-1].classList.add("win")
+})
 
 history.unshift(winner)
-
 if(history.length>10) history.pop()
 
 updateHistory()
 
-if(playerWins){
+jackpot += Math.floor(players*0.8)
+document.getElementById("jackpot").innerText = jackpot
 
-let prize=jackpot
+let playerTicket = selected.slice().sort((a,b)=>a-b).join("-")
 
-document.getElementById("jackpot").classList.add("winflash")
+if(submitted && playerTicket === winner){
 
-for(let i=0;i<3;i++){
-setTimeout(piano,i*600)
-}
+setTimeout(()=>alert("You win €"+jackpot),500)
 
-setTimeout(()=>{
-alert("YOU WIN €"+prize)
-},1200)
+}else if(submitted){
 
-jackpot=Math.floor(players*0.8)
-operator+=Math.floor(players*0.2)
-
-document.getElementById("jackpot").innerText=jackpot
-
-}else{
-
-jackpot+=Math.floor(players*0.8)
-operator+=Math.floor(players*0.2)
-
-document.getElementById("jackpot").innerText=jackpot
-
-piano()
+setTimeout(()=>alert("You did not win this round.\nWinning combination: "+winner.replaceAll("-"," ")),500)
 
 }
 
@@ -480,42 +417,18 @@ time--
 document.getElementById("timer").innerText=time
 
 simulate()
-
 heatmap()
-
 updateHotCold()
-
 metrics()
 
 if(time<=0){
 
 endRound()
-
 time=120
 
 }
 
 },1000)
-
-function piano(){
-
-let notes=["C4","E4","G4"]
-
-notes.forEach((n,i)=>{
-
-setTimeout(()=>{
-
-let audio=new Audio(
-"https://cdn.jsdelivr.net/gh/gleitz/midi-js-soundfonts@master/MusyngKite/acoustic_grand_piano-mp3/"+n+".mp3"
-)
-
-audio.play()
-
-},i*200)
-
-})
-
-}
 
 </script>
 
