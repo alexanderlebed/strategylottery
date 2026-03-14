@@ -268,6 +268,26 @@ cells.forEach(c=>c.classList.remove("blink"))
 
 }
 
+function playWinSound(){
+
+let notes=["C4","E4","G4"]
+
+notes.forEach((n,i)=>{
+
+setTimeout(()=>{
+
+let audio=new Audio(
+"https://cdn.jsdelivr.net/gh/gleitz/midi-js-soundfonts@master/MusyngKite/acoustic_grand_piano-mp3/"+n+".mp3"
+)
+
+audio.play()
+
+},i*200)
+
+})
+
+}
+
 function simulate(){
 
 popularity=new Array(49).fill(0)
@@ -310,29 +330,6 @@ else if(v==2) cell.classList.add("hot")
 else cell.classList.add("extreme")
 
 })
-
-}
-
-function updateHotCold(){
-
-let arr=[]
-
-for(let i=0;i<49;i++){
-
-arr.push({n:i+1,v:popularity[i]})
-
-}
-
-arr.sort((a,b)=>b.v-a.v)
-
-let hot=arr.slice(0,5)
-let cold=arr.slice(-5)
-
-document.getElementById("hot").innerHTML=
-hot.map(x=>x.n+" 🔥").join("<br>")
-
-document.getElementById("cold").innerHTML=
-cold.map(x=>x.n+" ❄").join("<br>")
 
 }
 
@@ -385,6 +382,13 @@ if(history.length>10) history.pop()
 
 updateHistory()
 
+if(submitted && Math.random()<0.15){
+
+playWinSound()
+setTimeout(()=>alert("You won this round"),400)
+
+}
+
 submitted=false
 selected=[]
 
@@ -403,7 +407,6 @@ document.getElementById("timer").innerText="Round ends in "+time
 
 simulate()
 heatmap()
-updateHotCold()
 metrics()
 
 if(time<=0){
