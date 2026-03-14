@@ -23,14 +23,8 @@ margin-top:20px;
 }
 
 #subtitle{
-margin-bottom:15px;
+margin-bottom:20px;
 color:#9f9;
-font-size:18px;
-}
-
-#rules{
-margin-bottom:25px;
-line-height:1.6;
 }
 
 #layout{
@@ -67,13 +61,13 @@ box-shadow:0 0 30px rgba(0,255,150,0.3) inset;
 }
 
 #timer{
-font-size:22px;
-margin-bottom:5px;
+font-size:60px;
+letter-spacing:4px;
 }
 
 .metric{
 font-size:18px;
-margin-top:6px;
+margin-top:5px;
 }
 
 #grid{
@@ -111,6 +105,28 @@ color:#000;
 font-weight:bold;
 }
 
+.blink{
+animation:blink 1s infinite;
+}
+
+@keyframes blink{
+0%{opacity:1}
+50%{opacity:0.2}
+100%{opacity:1}
+}
+
+/* мягкое мигание для replace */
+
+.replaceable{
+animation:softpulse 3s infinite;
+}
+
+@keyframes softpulse{
+0%{box-shadow:0 0 3px rgba(127,255,212,0.2);}
+50%{box-shadow:0 0 7px rgba(127,255,212,0.45);}
+100%{box-shadow:0 0 3px rgba(127,255,212,0.2);}
+}
+
 button{
 margin-top:12px;
 padding:10px 24px;
@@ -131,12 +147,6 @@ animation:flash .4s 3;
 100%{transform:scale(1)}
 }
 
-#message{
-margin-top:15px;
-font-size:18px;
-color:#fff;
-}
-
 </style>
 </head>
 
@@ -145,22 +155,19 @@ color:#fff;
 <h1>Strategy Lottery</h1>
 
 <div id="subtitle">
-Predict the crowd. Pick the numbers others avoid.
+Predict the crowd. Pick the numbers others avoid. Strategy beats luck.
 </div>
 
-<div id="rules">
+<div style="margin-bottom:20px">
 
-<b>HOW TO WIN</b><br><br>
+HOW TO WIN<br><br>
 
-1. Pick 6 numbers.<br>
-2. Watch the heatmap — avoid numbers other players choose.<br>
-3. Submit your ticket.<br>
-4. If the crowd moves, you can replace numbers before the round ends.<br>
-5. The least popular combination wins the jackpot — strategy beats luck.<br><br>
+1. Pick 6 numbers<br>
+2. Avoid numbers other players choose<br>
+3. If a number becomes popular, click it and change it<br>
+4. The least popular combination wins the jackpot<br><br>
 
-<b>Tip:</b> click one of your numbers, then click another to replace it.<br><br>
-
-You are playing against <b>5 simulated players representing crowd behaviour</b>.
+You are competing against 5 simulated players representing crowd behaviour.
 
 </div>
 
@@ -189,12 +196,7 @@ You are playing against <b>5 simulated players representing crowd behaviour</b>.
 
 <div id="lcd">
 
-<div id="timer">Round ends in 120 sec</div>
-
-<div class="metric">
-CROWD PRESSURE<br>
-<span id="crowdbar">█░░░░░░░░░░</span>
-</div>
+<div id="timer">120</div>
 
 <div class="metric">PLAYERS <span id="players">5</span></div>
 <div class="metric">TICKET €1</div>
@@ -208,8 +210,6 @@ CROWD PRESSURE<br>
 <div id="grid"></div>
 
 <button onclick="submitTicket()" id="submit">SUBMIT</button>
-
-<div id="message"></div>
 
 </div>
 
@@ -249,6 +249,7 @@ cell.classList.remove("mine")
 
 selected.push(i)
 cell.classList.add("mine")
+cell.classList.add("blink")
 
 }
 
@@ -267,6 +268,12 @@ return
 }
 
 submitted=true
+cells.forEach(c=>c.classList.remove("blink"))
+
+selected.forEach(n=>{
+cells[n-1].classList.add("replaceable")
+})
+
 document.getElementById("submit").classList.add("flash")
 
 }
@@ -283,6 +290,7 @@ let nums=[]
 while(nums.length<6){
 
 let n=Math.floor(Math.random()*49)+1
+
 if(!nums.includes(n)) nums.push(n)
 
 }
@@ -369,24 +377,8 @@ let sum=0
 selected.forEach(n=>sum+=popularity[n-1])
 
 document.getElementById("score").innerText=Math.max(0,100-sum*4)
+
 document.getElementById("prob").innerText=Math.max(5,35-sum*2)+"%"
-
-}
-
-function updateCrowd(){
-
-let total=0
-popularity.forEach(v=>total+=v)
-
-let level=Math.min(10,Math.floor(total/10))
-
-let bar=""
-
-for(let i=0;i<10;i++){
-bar+= i<level ? "█" : "░"
-}
-
-document.getElementById("crowdbar").innerText=bar
 
 }
 
@@ -403,7 +395,10 @@ let winner=simulate()
 
 let nums=winner.split("-").map(Number)
 
-cells.forEach(c=>c.classList.remove("win"))
+cells.forEach(c=>{
+c.classList.remove("win")
+c.classList.remove("replaceable")
+})
 
 nums.forEach(n=>{
 cells[n-1].classList.add("win")
@@ -416,18 +411,21 @@ updateHistory()
 
 if(submitted && Math.random()<0.15){
 
-document.getElementById("message").innerText="You won this round!"
+setTimeout(()=>alert("You won this round and received €"+jackpot),500)
 
 }else{
 
-document.getElementById("message").innerText="You did not win this round."
+setTimeout(()=>alert("You did not win this round"),500)
 
 }
 
 submitted=false
 selected=[]
 
-cells.forEach(c=>c.classList.remove("mine"))
+cells.forEach(c=>{
+c.classList.remove("mine")
+c.classList.remove("blink")
+})
 
 }
 
@@ -435,13 +433,12 @@ setInterval(()=>{
 
 time--
 
-document.getElementById("timer").innerText="Round ends in "+time+" sec"
+document.getElementById("timer").innerText=time
 
 simulate()
 heatmap()
 updateHotCold()
 metrics()
-updateCrowd()
 
 if(time<=0){
 
