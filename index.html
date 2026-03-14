@@ -67,13 +67,13 @@ box-shadow:0 0 30px rgba(0,255,150,0.3) inset;
 }
 
 #timer{
-font-size:26px;
+font-size:22px;
 margin-bottom:5px;
 }
 
 .metric{
 font-size:18px;
-margin-top:5px;
+margin-top:6px;
 }
 
 #grid{
@@ -150,12 +150,17 @@ Predict the crowd. Pick the numbers others avoid.
 
 <div id="rules">
 
-HOW TO WIN<br>
-1. Select 6 numbers<br>
-2. Avoid numbers other players choose<br>
-3. The least popular combination wins the jackpot — strategy beats luck<br><br>
+<b>HOW TO WIN</b><br><br>
 
-You are competing against <b>5 simulated players representing crowd behaviour</b>.
+1. Pick 6 numbers.<br>
+2. Watch the heatmap — avoid numbers other players choose.<br>
+3. Submit your ticket.<br>
+4. If the crowd moves, you can replace numbers before the round ends.<br>
+5. The least popular combination wins the jackpot — strategy beats luck.<br><br>
+
+<b>Tip:</b> click one of your numbers, then click another to replace it.<br><br>
+
+You are playing against <b>5 simulated players representing crowd behaviour</b>.
 
 </div>
 
@@ -185,6 +190,11 @@ You are competing against <b>5 simulated players representing crowd behaviour</b
 <div id="lcd">
 
 <div id="timer">Round ends in 120 sec</div>
+
+<div class="metric">
+CROWD PRESSURE<br>
+<span id="crowdbar">█░░░░░░░░░░</span>
+</div>
 
 <div class="metric">PLAYERS <span id="players">5</span></div>
 <div class="metric">TICKET €1</div>
@@ -363,6 +373,23 @@ document.getElementById("prob").innerText=Math.max(5,35-sum*2)+"%"
 
 }
 
+function updateCrowd(){
+
+let total=0
+popularity.forEach(v=>total+=v)
+
+let level=Math.min(10,Math.floor(total/10))
+
+let bar=""
+
+for(let i=0;i<10;i++){
+bar+= i<level ? "█" : "░"
+}
+
+document.getElementById("crowdbar").innerText=bar
+
+}
+
 function updateHistory(){
 
 document.getElementById("history").innerHTML=
@@ -414,6 +441,7 @@ simulate()
 heatmap()
 updateHotCold()
 metrics()
+updateCrowd()
 
 if(time<=0){
 
