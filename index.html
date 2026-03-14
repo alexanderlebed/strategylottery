@@ -18,9 +18,7 @@ margin:0;
 text-align:center;
 }
 
-h1{
-margin-top:20px;
-}
+h1{margin-top:20px;}
 
 #subtitle{
 color:#9f9;
@@ -33,9 +31,7 @@ justify-content:center;
 gap:30px;
 }
 
-#leftpanel{
-width:200px;
-}
+#leftpanel{width:200px;}
 
 .panel{
 background:#021;
@@ -58,9 +54,7 @@ width:420px;
 box-shadow:0 0 30px rgba(0,255,150,0.3) inset;
 }
 
-#timer{
-font-size:50px;
-}
+#timer{font-size:50px;}
 
 .metric{
 font-size:18px;
@@ -106,12 +100,6 @@ border:3px solid transparent;
 
 .mine{
 border:3px solid #7fffd4;
-}
-
-.win{
-background:#ffd700;
-color:#000;
-font-weight:bold;
 }
 
 .blink{
@@ -224,16 +212,19 @@ const grid=document.getElementById("grid")
 for(let i=1;i<=49;i++){
 
 let cell=document.createElement("div")
+
 cell.className="number cold"
 cell.innerText=i.toString().padStart(2,"0")
 
 cell.onclick=()=>{
 
 if(selected.includes(i)){
+
 selected=selected.filter(x=>x!==i)
 cell.classList.remove("mine")
 
 }else if(selected.length<6){
+
 selected.push(i)
 cell.classList.add("mine")
 
@@ -345,9 +336,17 @@ cold.map(x=>x.n+" ❄").join("<br>")
 
 }
 
+function updateHistory(){
+
+document.getElementById("history").innerHTML=
+history.map(h=>h.replaceAll("-"," ")).join("<br>")
+
+}
+
 function metrics(){
 
 let sum=0
+
 selected.forEach(n=>sum+=popularity[n-1])
 
 let strategy=Math.max(0,100-sum*4)
@@ -361,14 +360,7 @@ document.getElementById("crowdlevel").style.width=crowd+"%"
 
 }
 
-function updateHistory(){
-document.getElementById("history").innerHTML=
-history.map(h=>h.replaceAll("-"," ")).join("<br>")
-}
-
 function endRound(){
-
-cells.forEach(c=>c.classList.remove("win"))
 
 let winner=[]
 
@@ -377,18 +369,15 @@ let n=Math.floor(Math.random()*49)+1
 if(!winner.includes(n)) winner.push(n)
 }
 
-winner.forEach(n=>{
-cells[n-1].classList.add("win")
-})
-
 history.unshift(winner.join("-"))
+
 if(history.length>10) history.pop()
 
 updateHistory()
 
 if(submitted && Math.random()<0.15){
 playWinSound()
-setTimeout(()=>alert("You won this round"),400)
+alert("You won this round")
 }
 
 submitted=false
@@ -404,6 +393,7 @@ c.classList.remove("blink")
 setInterval(()=>{
 
 time--
+
 document.getElementById("timer").innerText="Round ends in "+time
 
 simulate()
