@@ -24,12 +24,7 @@ margin-top:20px;
 
 #subtitle{
 color:#9f9;
-margin-bottom:10px;
-}
-
-#how{
-margin-bottom:20px;
-line-height:1.5;
+margin-bottom:15px;
 }
 
 #layout{
@@ -76,13 +71,14 @@ margin-top:5px;
 height:14px;
 background:#111;
 border:1px solid #0a5;
-margin-top:10px;
+margin-top:8px;
 }
 
 #crowdlevel{
 height:100%;
 width:0%;
 background:#0f0;
+transition:0.4s;
 }
 
 #grid{
@@ -146,11 +142,11 @@ cursor:pointer;
 <h1>Strategy Lottery</h1>
 
 <div id="subtitle">
-Predict the crowd. Pick the numbers others avoid.  
+Predict the crowd. Pick the numbers others avoid.<br>
 <b>Strategy beats luck.</b>
 </div>
 
-<div id="how">
+<div style="margin-bottom:20px">
 HOW TO WIN<br>
 1. Pick 6 numbers<br>
 2. Avoid numbers other players choose<br>
@@ -214,9 +210,8 @@ CROWD PRESSURE
 <script>
 
 let players=5
-let jackpot=4
-
 let time=120
+
 let selected=[]
 let submitted=false
 
@@ -229,6 +224,7 @@ const grid=document.getElementById("grid")
 for(let i=1;i<=49;i++){
 
 let cell=document.createElement("div")
+
 cell.className="number cold"
 cell.innerText=i.toString().padStart(2,"0")
 
@@ -243,7 +239,10 @@ cell.classList.remove("mine")
 
 selected.push(i)
 cell.classList.add("mine")
+
+if(!submitted){
 cell.classList.add("blink")
+}
 
 }
 
@@ -257,11 +256,14 @@ cells.push(cell)
 function submitTicket(){
 
 if(selected.length!=6){
+
 alert("Select 6 numbers")
 return
+
 }
 
 submitted=true
+
 cells.forEach(c=>c.classList.remove("blink"))
 
 }
@@ -269,7 +271,6 @@ cells.forEach(c=>c.classList.remove("blink"))
 function simulate(){
 
 popularity=new Array(49).fill(0)
-let tickets=[]
 
 for(let p=0;p<players;p++){
 
@@ -278,39 +279,20 @@ let nums=[]
 while(nums.length<6){
 
 let n=Math.floor(Math.random()*49)+1
+
 if(!nums.includes(n)) nums.push(n)
 
 }
 
 nums.forEach(x=>popularity[x-1]++)
-tickets.push(nums.sort((a,b)=>a-b).join("-"))
 
 }
 
 if(submitted){
 
 selected.forEach(x=>popularity[x-1]++)
-tickets.push(selected.slice().sort((a,b)=>a-b).join("-"))
 
 }
-
-let freq={}
-tickets.forEach(t=>{
-if(!freq[t]) freq[t]=0
-freq[t]++
-})
-
-let min=999
-let winner=null
-
-for(let t in freq){
-if(freq[t]<min){
-min=freq[t]
-winner=t
-}
-}
-
-return winner
 
 }
 
@@ -334,8 +316,11 @@ else cell.classList.add("extreme")
 function updateHotCold(){
 
 let arr=[]
+
 for(let i=0;i<49;i++){
+
 arr.push({n:i+1,v:popularity[i]})
+
 }
 
 arr.sort((a,b)=>b.v-a.v)
@@ -354,6 +339,7 @@ cold.map(x=>x.n+" ❄").join("<br>")
 function metrics(){
 
 let sum=0
+
 selected.forEach(n=>sum+=popularity[n-1])
 
 let strategy=Math.max(0,100-sum*4)
@@ -362,7 +348,8 @@ let prob=Math.max(5,35-sum*2)
 document.getElementById("score").innerText=strategy
 document.getElementById("prob").innerText=prob+"%"
 
-let crowd=Math.min(100,sum*5)
+let crowd=Math.min(100,sum*6)
+
 document.getElementById("crowdlevel").style.width=crowd+"%"
 
 }
@@ -378,21 +365,25 @@ function endRound(){
 
 cells.forEach(c=>c.classList.remove("win"))
 
-let winner=simulate()
-let nums=winner.split("-").map(Number)
+let winner=[]
 
-nums.forEach(n=>{
+while(winner.length<6){
+
+let n=Math.floor(Math.random()*49)+1
+
+if(!winner.includes(n)) winner.push(n)
+
+}
+
+winner.forEach(n=>{
 cells[n-1].classList.add("win")
 })
 
-history.unshift(winner)
+history.unshift(winner.join("-"))
+
 if(history.length>10) history.pop()
 
 updateHistory()
-
-if(submitted && Math.random()<0.15){
-setTimeout(()=>alert("You won this round €"+jackpot),500)
-}
 
 submitted=false
 selected=[]
@@ -407,6 +398,7 @@ c.classList.remove("blink")
 setInterval(()=>{
 
 time--
+
 document.getElementById("timer").innerText="Round ends in "+time
 
 simulate()
