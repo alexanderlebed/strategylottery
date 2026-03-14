@@ -224,19 +224,16 @@ const grid=document.getElementById("grid")
 for(let i=1;i<=49;i++){
 
 let cell=document.createElement("div")
-
 cell.className="number cold"
 cell.innerText=i.toString().padStart(2,"0")
 
 cell.onclick=()=>{
 
 if(selected.includes(i)){
-
 selected=selected.filter(x=>x!==i)
 cell.classList.remove("mine")
 
 }else if(selected.length<6){
-
 selected.push(i)
 cell.classList.add("mine")
 
@@ -256,14 +253,11 @@ cells.push(cell)
 function submitTicket(){
 
 if(selected.length!=6){
-
 alert("Select 6 numbers")
 return
-
 }
 
 submitted=true
-
 cells.forEach(c=>c.classList.remove("blink"))
 
 }
@@ -299,7 +293,6 @@ let nums=[]
 while(nums.length<6){
 
 let n=Math.floor(Math.random()*49)+1
-
 if(!nums.includes(n)) nums.push(n)
 
 }
@@ -309,9 +302,7 @@ nums.forEach(x=>popularity[x-1]++)
 }
 
 if(submitted){
-
 selected.forEach(x=>popularity[x-1]++)
-
 }
 
 }
@@ -333,10 +324,30 @@ else cell.classList.add("extreme")
 
 }
 
+function updateHotCold(){
+
+let arr=[]
+
+for(let i=0;i<49;i++){
+arr.push({n:i+1,v:popularity[i]})
+}
+
+arr.sort((a,b)=>b.v-a.v)
+
+let hot=arr.slice(0,5)
+let cold=arr.slice(-5)
+
+document.getElementById("hot").innerHTML=
+hot.map(x=>x.n+" 🔥").join("<br>")
+
+document.getElementById("cold").innerHTML=
+cold.map(x=>x.n+" ❄").join("<br>")
+
+}
+
 function metrics(){
 
 let sum=0
-
 selected.forEach(n=>sum+=popularity[n-1])
 
 let strategy=Math.max(0,100-sum*4)
@@ -346,16 +357,13 @@ document.getElementById("score").innerText=strategy
 document.getElementById("prob").innerText=prob+"%"
 
 let crowd=Math.min(100,sum*6)
-
 document.getElementById("crowdlevel").style.width=crowd+"%"
 
 }
 
 function updateHistory(){
-
 document.getElementById("history").innerHTML=
 history.map(h=>h.replaceAll("-"," ")).join("<br>")
-
 }
 
 function endRound(){
@@ -365,11 +373,8 @@ cells.forEach(c=>c.classList.remove("win"))
 let winner=[]
 
 while(winner.length<6){
-
 let n=Math.floor(Math.random()*49)+1
-
 if(!winner.includes(n)) winner.push(n)
-
 }
 
 winner.forEach(n=>{
@@ -377,16 +382,13 @@ cells[n-1].classList.add("win")
 })
 
 history.unshift(winner.join("-"))
-
 if(history.length>10) history.pop()
 
 updateHistory()
 
 if(submitted && Math.random()<0.15){
-
 playWinSound()
 setTimeout(()=>alert("You won this round"),400)
-
 }
 
 submitted=false
@@ -402,11 +404,11 @@ c.classList.remove("blink")
 setInterval(()=>{
 
 time--
-
 document.getElementById("timer").innerText="Round ends in "+time
 
 simulate()
 heatmap()
+updateHotCold()
 metrics()
 
 if(time<=0){
