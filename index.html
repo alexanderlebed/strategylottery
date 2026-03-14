@@ -115,8 +115,6 @@ animation:blink 1s infinite;
 100%{opacity:1}
 }
 
-/* мягкое мигание для replace */
-
 .replaceable{
 animation:softpulse 3s infinite;
 }
@@ -201,6 +199,8 @@ You are competing against 5 simulated players representing crowd behaviour.
 <div class="metric">PLAYERS <span id="players">5</span></div>
 <div class="metric">TICKET €1</div>
 <div class="metric">JACKPOT €<span id="jackpot">4</span></div>
+
+<div class="metric">CROWD PRESSURE <span id="crowd">LOW</span></div>
 
 <div class="metric">STRATEGY <span id="score">0</span></div>
 <div class="metric">WIN PROB <span id="prob">0%</span></div>
@@ -370,6 +370,20 @@ cold.map(x=>x.n.toString().padStart(2,"0")+" ❄").join("<br>")
 
 }
 
+function updateCrowd(){
+
+let total=0
+popularity.forEach(v=>total+=v)
+
+let crowd="LOW"
+
+if(total>15) crowd="MEDIUM"
+if(total>25) crowd="HIGH"
+
+document.getElementById("crowd").innerText=crowd
+
+}
+
 function metrics(){
 
 let sum=0
@@ -393,12 +407,12 @@ function endRound(){
 
 let winner=simulate()
 
-let nums=winner.split("-").map(Number)
-
 cells.forEach(c=>{
 c.classList.remove("win")
 c.classList.remove("replaceable")
 })
+
+let nums=winner.split("-").map(Number)
 
 nums.forEach(n=>{
 cells[n-1].classList.add("win")
@@ -439,6 +453,7 @@ simulate()
 heatmap()
 updateHotCold()
 metrics()
+updateCrowd()
 
 if(time<=0){
 
