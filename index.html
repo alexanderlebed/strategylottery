@@ -2,6 +2,7 @@
 <html>
 
 <head>
+
 <meta charset="UTF-8">
 <title>Strategy Lottery</title>
 
@@ -17,21 +18,29 @@ margin:0;
 text-align:center;
 }
 
-h1{margin-top:20px;}
+h1{
+margin-top:20px;
+}
 
 #subtitle{
-margin-bottom:20px;
 color:#9f9;
+margin-bottom:10px;
+}
+
+#how{
+margin-bottom:20px;
+line-height:1.5;
 }
 
 #layout{
 display:flex;
 justify-content:center;
 gap:30px;
-padding-top:10px;
 }
 
-#leftpanel{width:200px;}
+#leftpanel{
+width:200px;
+}
 
 .panel{
 background:#021;
@@ -42,7 +51,6 @@ border:1px solid #0a5;
 
 .panel h3{
 margin-top:0;
-font-size:16px;
 color:#9f9;
 }
 
@@ -56,13 +64,25 @@ box-shadow:0 0 30px rgba(0,255,150,0.3) inset;
 }
 
 #timer{
-font-size:60px;
-letter-spacing:4px;
+font-size:50px;
 }
 
 .metric{
 font-size:18px;
 margin-top:5px;
+}
+
+#crowdbar{
+height:14px;
+background:#111;
+border:1px solid #0a5;
+margin-top:10px;
+}
+
+#crowdlevel{
+height:100%;
+width:0%;
+background:#0f0;
 }
 
 #grid{
@@ -79,9 +99,8 @@ height:32px;
 display:flex;
 align-items:center;
 justify-content:center;
-border:3px solid transparent;
 cursor:pointer;
-transition:0.3s;
+border:3px solid transparent;
 }
 
 .cold{color:#0f0;}
@@ -91,7 +110,6 @@ transition:0.3s;
 
 .mine{
 border:3px solid #7fffd4;
-box-shadow:0 0 8px #7fffd4;
 }
 
 .win{
@@ -100,16 +118,14 @@ color:#000;
 font-weight:bold;
 }
 
-/* пульсация выбора до SUBMIT */
-
-.preselect{
-animation:softpulse 2.5s infinite;
+.blink{
+animation:blink 1s infinite;
 }
 
-@keyframes softpulse{
-0%{box-shadow:0 0 3px rgba(127,255,212,0.2);}
-50%{box-shadow:0 0 8px rgba(127,255,212,0.45);}
-100%{box-shadow:0 0 3px rgba(127,255,212,0.2);}
+@keyframes blink{
+0%{opacity:1}
+50%{opacity:0.3}
+100%{opacity:1}
 }
 
 button{
@@ -122,16 +138,6 @@ font-family:'Roboto Mono';
 cursor:pointer;
 }
 
-.flash{
-animation:flash .4s 3;
-}
-
-@keyframes flash{
-0%{transform:scale(1)}
-50%{transform:scale(1.2)}
-100%{transform:scale(1)}
-}
-
 </style>
 </head>
 
@@ -140,20 +146,18 @@ animation:flash .4s 3;
 <h1>Strategy Lottery</h1>
 
 <div id="subtitle">
-Predict the crowd. Pick the numbers others avoid.
+Predict the crowd. Pick the numbers others avoid.  
+<b>Strategy beats luck.</b>
 </div>
 
-<div style="margin-bottom:20px">
-
-HOW TO WIN<br><br>
-
+<div id="how">
+HOW TO WIN<br>
 1. Pick 6 numbers<br>
 2. Avoid numbers other players choose<br>
-3. If a number becomes popular, click it and replace it<br>
+3. If a number becomes popular, click it and change it<br>
 4. The least popular combination wins the jackpot<br><br>
 
-You are playing against 5 simulated players representing crowd behaviour.
-
+You are competing against <b>5 simulated players</b>.
 </div>
 
 <div id="layout">
@@ -183,20 +187,25 @@ You are playing against 5 simulated players representing crowd behaviour.
 
 <div id="timer">120</div>
 
-<div class="metric">PLAYERS <span id="players">5</span></div>
+<div class="metric">PLAYERS 5</div>
 <div class="metric">TICKET €1</div>
 <div class="metric">JACKPOT €<span id="jackpot">4</span></div>
 
-<div class="metric">CROWD PRESSURE <span id="crowd">LOW</span></div>
-
 <div class="metric">STRATEGY <span id="score">0</span></div>
 <div class="metric">WIN PROB <span id="prob">0%</span></div>
+
+<div style="margin-top:10px">
+CROWD PRESSURE
+<div id="crowdbar">
+<div id="crowdlevel"></div>
+</div>
+</div>
 
 </div>
 
 <div id="grid"></div>
 
-<button onclick="submitTicket()" id="submit">SUBMIT</button>
+<button onclick="submitTicket()">SUBMIT</button>
 
 </div>
 
@@ -205,13 +214,13 @@ You are playing against 5 simulated players representing crowd behaviour.
 <script>
 
 let players=5
-let jackpot=Math.floor(players*0.8)
+let jackpot=4
 
 let time=120
 let selected=[]
 let submitted=false
-let popularity=new Array(49).fill(0)
 
+let popularity=new Array(49).fill(0)
 let history=[]
 let cells=[]
 
@@ -229,13 +238,12 @@ if(selected.includes(i)){
 
 selected=selected.filter(x=>x!==i)
 cell.classList.remove("mine")
-cell.classList.remove("preselect")
 
 }else if(selected.length<6){
 
 selected.push(i)
 cell.classList.add("mine")
-cell.classList.add("preselect")
+cell.classList.add("blink")
 
 }
 
@@ -254,12 +262,7 @@ return
 }
 
 submitted=true
-
-cells.forEach(c=>{
-c.classList.remove("preselect")
-})
-
-document.getElementById("submit").classList.add("flash")
+cells.forEach(c=>c.classList.remove("blink"))
 
 }
 
@@ -275,7 +278,6 @@ let nums=[]
 while(nums.length<6){
 
 let n=Math.floor(Math.random()*49)+1
-
 if(!nums.includes(n)) nums.push(n)
 
 }
@@ -302,12 +304,10 @@ let min=999
 let winner=null
 
 for(let t in freq){
-
 if(freq[t]<min){
 min=freq[t]
 winner=t
 }
-
 }
 
 return winner
@@ -344,23 +344,10 @@ let hot=arr.slice(0,5)
 let cold=arr.slice(-5)
 
 document.getElementById("hot").innerHTML=
-hot.map(x=>x.n.toString().padStart(2,"0")+" 🔥").join("<br>")
+hot.map(x=>x.n+" 🔥").join("<br>")
 
 document.getElementById("cold").innerHTML=
-cold.map(x=>x.n.toString().padStart(2,"0")+" ❄").join("<br>")
-
-}
-
-function updateCrowd(){
-
-let total=0
-popularity.forEach(v=>total+=v)
-
-let crowd="LOW"
-if(total>15) crowd="MEDIUM"
-if(total>25) crowd="HIGH"
-
-document.getElementById("crowd").innerText=crowd
+cold.map(x=>x.n+" ❄").join("<br>")
 
 }
 
@@ -369,8 +356,14 @@ function metrics(){
 let sum=0
 selected.forEach(n=>sum+=popularity[n-1])
 
-document.getElementById("score").innerText=Math.max(0,100-sum*4)
-document.getElementById("prob").innerText=Math.max(5,35-sum*2)+"%"
+let strategy=Math.max(0,100-sum*4)
+let prob=Math.max(5,35-sum*2)
+
+document.getElementById("score").innerText=strategy
+document.getElementById("prob").innerText=prob+"%"
+
+let crowd=Math.min(100,sum*5)
+document.getElementById("crowdlevel").style.width=crowd+"%"
 
 }
 
@@ -397,11 +390,16 @@ if(history.length>10) history.pop()
 
 updateHistory()
 
+if(submitted && Math.random()<0.15){
+setTimeout(()=>alert("You won this round €"+jackpot),500)
+}
+
 submitted=false
 selected=[]
 
 cells.forEach(c=>{
 c.classList.remove("mine")
+c.classList.remove("blink")
 })
 
 }
@@ -409,14 +407,12 @@ c.classList.remove("mine")
 setInterval(()=>{
 
 time--
-
-document.getElementById("timer").innerText=time
+document.getElementById("timer").innerText="Round ends in "+time
 
 simulate()
 heatmap()
 updateHotCold()
 metrics()
-updateCrowd()
 
 if(time<=0){
 
