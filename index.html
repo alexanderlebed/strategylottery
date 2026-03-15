@@ -129,10 +129,6 @@ font-family:'Roboto Mono';
 cursor:pointer;
 }
 
-#share{
-margin-left:10px;
-}
-
 @media (max-width:700px){
 
 #grid{
@@ -182,16 +178,6 @@ You are competing against <b>5 simulated players</b>.
 <div id="leftpanel">
 
 <div class="panel">
-<h3>HOT</h3>
-<div id="hot"></div>
-</div>
-
-<div class="panel">
-<h3>COLD</h3>
-<div id="cold"></div>
-</div>
-
-<div class="panel">
 <h3>LAST ROUNDS</h3>
 <div id="history"></div>
 </div>
@@ -223,7 +209,6 @@ CROWD PRESSURE
 <div id="grid"></div>
 
 <button onclick="submitTicket()">SUBMIT</button>
-<button id="share" onclick="shareResult()">SHARE RESULT</button>
 
 </div>
 
@@ -285,30 +270,10 @@ return
 submitted=true
 
 if(navigator.vibrate){
-navigator.vibrate([40,40,40])
+navigator.vibrate(80)
 }
 
 cells.forEach(c=>c.classList.remove("blink"))
-
-}
-
-function playWinSound(){
-
-let notes=["C4","E4","G4"]
-
-notes.forEach((n,i)=>{
-
-setTimeout(()=>{
-
-let audio=new Audio(
-"https://cdn.jsdelivr.net/gh/gleitz/midi-js-soundfonts@master/MusyngKite/acoustic_grand_piano-mp3/"+n+".mp3"
-)
-
-audio.play()
-
-},i*200)
-
-})
 
 }
 
@@ -344,34 +309,24 @@ cells.forEach((cell,i)=>{
 cell.classList.remove("cold","warm","hot","extreme")
 
 let v=popularity[i]
+let n=(i+1).toString().padStart(2,"0")
 
-if(v==0) cell.classList.add("cold")
-else if(v==1) cell.classList.add("warm")
-else if(v==2) cell.classList.add("hot")
-else cell.classList.add("extreme")
+if(v==0){
+cell.innerText=n+" 🟩"
+cell.classList.add("cold")
+}
+
+else if(v==1){
+cell.innerText=n+" 🟨"
+cell.classList.add("warm")
+}
+
+else{
+cell.innerText=n+" 🟥"
+cell.classList.add("hot")
+}
 
 })
-
-}
-
-function updateHotCold(){
-
-let arr=[]
-
-for(let i=0;i<49;i++){
-arr.push({n:i+1,v:popularity[i]})
-}
-
-arr.sort((a,b)=>b.v-a.v)
-
-let hot=arr.slice(0,5)
-let cold=arr.slice(-5)
-
-document.getElementById("hot").innerHTML=
-hot.map(x=>x.n+" 🔥").join("<br>")
-
-document.getElementById("cold").innerHTML=
-cold.map(x=>x.n+" ❄").join("<br>")
 
 }
 
@@ -399,47 +354,6 @@ document.getElementById("crowdlevel").style.width=crowd+"%"
 
 }
 
-function generateEmojiGrid(){
-
-let grid=""
-
-selected.forEach(n=>{
-
-let p=popularity[n-1]
-
-if(p==0) grid+="🟩"
-else if(p==1) grid+="🟨"
-else grid+="🟥"
-
-})
-
-return grid
-
-}
-
-function shareResult(){
-
-let grid=generateEmojiGrid()
-
-let nums=selected.map(n=>n.toString().padStart(2,"0")).join(" ")
-
-let text=
-`Strategy Lottery
-
-${grid}
-${nums}
-
-Strategy ${document.getElementById("score").innerText}
-Win Prob ${document.getElementById("prob").innerText}
-
-https://strategylottery.com`
-
-navigator.clipboard.writeText(text)
-
-alert("Result copied")
-
-}
-
 function endRound(){
 
 let winner=[]
@@ -456,7 +370,6 @@ if(history.length>10) history.pop()
 updateHistory()
 
 if(submitted && Math.random()<0.15){
-playWinSound()
 alert("You won this round")
 }
 
@@ -478,7 +391,6 @@ document.getElementById("timer").innerText="Round ends in "+time
 
 simulate()
 heatmap()
-updateHotCold()
 metrics()
 
 if(time<=0){
