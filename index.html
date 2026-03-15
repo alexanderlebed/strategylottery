@@ -4,6 +4,8 @@
 <head>
 
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>Strategy Lottery</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300&display=swap" rel="stylesheet">
@@ -28,15 +30,16 @@ margin-bottom:15px;
 #layout{
 display:flex;
 justify-content:center;
-gap:30px;
+gap:20px;
+flex-wrap:wrap;
 }
 
 #leftpanel{width:200px;}
 
 .panel{
 background:#021;
-padding:15px;
-margin-bottom:15px;
+padding:12px;
+margin-bottom:12px;
 border:1px solid #0a5;
 }
 
@@ -54,16 +57,25 @@ width:420px;
 box-shadow:0 0 30px rgba(0,255,150,0.3) inset;
 }
 
-#timer{font-size:50px;}
+#timer{font-size:40px;}
 
 .metric{
 font-size:18px;
 margin-top:5px;
 }
 
+/* crowd gauge */
+
 #crowdbar{
-height:14px;
-background:#111;
+height:16px;
+background:linear-gradient(
+to right,
+#00ff88,
+#88ff00,
+#ffff00,
+#ff8800,
+#ff0000
+);
 border:1px solid #0a5;
 margin-top:8px;
 }
@@ -71,26 +83,35 @@ margin-top:8px;
 #crowdlevel{
 height:100%;
 width:0%;
-background:#0f0;
-transition:0.4s;
+background:#000;
+opacity:0.6;
+transition:0.3s;
 }
+
+/* grid */
 
 #grid{
 display:grid;
-grid-template-columns:repeat(7,50px);
-gap:8px;
-justify-content:center;
-margin-top:18px;
+grid-template-columns:repeat(7,1fr);
+gap:6px;
+width:95vw;
+max-width:520px;
+margin:20px auto;
 }
 
 .number{
-width:50px;
-height:32px;
+aspect-ratio:1/1;
 display:flex;
 align-items:center;
 justify-content:center;
 cursor:pointer;
-border:3px solid transparent;
+border:2px solid transparent;
+font-size:18px;
+
+background:linear-gradient(#111,#000);
+box-shadow:
+0 2px 4px #000,
+inset 0 1px 2px rgba(255,255,255,0.15);
 }
 
 .cold{color:#0f0;}
@@ -99,7 +120,7 @@ border:3px solid transparent;
 .extreme{color:#f00;}
 
 .mine{
-border:3px solid #7fffd4;
+border:2px solid #7fffd4;
 }
 
 .blink{
@@ -108,18 +129,48 @@ animation:blink 1s infinite;
 
 @keyframes blink{
 0%{opacity:1}
-50%{opacity:0.3}
+50%{opacity:0.4}
 100%{opacity:1}
 }
 
 button{
 margin-top:12px;
-padding:10px 24px;
+padding:12px 26px;
 background:black;
 border:2px solid #0f0;
 color:#0f0;
 font-family:'Roboto Mono';
 cursor:pointer;
+}
+
+/* mobile */
+
+@media (max-width:900px){
+
+#layout{
+flex-direction:column;
+align-items:center;
+}
+
+#leftpanel{
+display:flex;
+width:95%;
+gap:8px;
+}
+
+.panel{
+flex:1;
+font-size:12px;
+}
+
+#lcd{
+width:95%;
+}
+
+#timer{
+font-size:30px;
+}
+
 }
 
 </style>
@@ -179,7 +230,7 @@ You are competing against <b>5 simulated players</b>.
 <div class="metric">WIN PROB <span id="prob">0%</span></div>
 
 <div style="margin-top:10px">
-CROWD PRESSURE
+SAFE ← CROWD
 <div id="crowdbar">
 <div id="crowdlevel"></div>
 </div>
@@ -217,6 +268,8 @@ cell.className="number cold"
 cell.innerText=i.toString().padStart(2,"0")
 
 cell.onclick=()=>{
+
+if(navigator.vibrate) navigator.vibrate(20)
 
 if(selected.includes(i)){
 
