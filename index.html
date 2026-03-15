@@ -4,7 +4,7 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Strategy Lottery</title>
 
@@ -12,174 +12,143 @@
 
 <style>
 
-html,body{
-height:100%;
-margin:0;
+body{
 background:#000;
 color:#cfc;
 font-family:'Roboto Mono', monospace;
-overflow:hidden;
-}
-
-body{
-display:flex;
-flex-direction:column;
-}
-
-h1{
-margin:6px 0;
-font-size:20px;
+margin:0;
 text-align:center;
 }
+
+h1{margin-top:20px;}
 
 #subtitle{
-font-size:12px;
 color:#9f9;
-text-align:center;
+margin-bottom:15px;
 }
 
 #layout{
-flex:1;
 display:flex;
-flex-direction:column;
-align-items:center;
-width:100%;
+justify-content:center;
+gap:30px;
+flex-wrap:wrap;
+padding:10px;
 }
 
-#leftpanel{
-display:flex;
-width:95%;
-gap:6px;
-margin-bottom:6px;
-}
+#leftpanel{width:200px;}
 
 .panel{
-flex:1;
 background:#021;
+padding:15px;
+margin-bottom:15px;
 border:1px solid #0a5;
-border-radius:6px;
-padding:6px;
-font-size:11px;
 }
 
 .panel h3{
-margin:0;
-font-size:11px;
+margin-top:0;
 color:#9f9;
 }
 
 #lcd{
-width:95%;
 background:rgba(210,255,210,0.85);
-border-radius:10px;
-padding:6px;
+padding:18px;
+border-radius:18px;
 color:#132;
-font-size:12px;
+width:420px;
+max-width:95vw;
+box-shadow:0 0 30px rgba(0,255,150,0.3) inset;
 }
 
 #timer{
-font-size:18px;
+font-size:40px;
 }
 
 .metric{
-margin-top:2px;
+font-size:18px;
+margin-top:5px;
 }
 
 #crowdbar{
-height:8px;
+height:14px;
 background:#111;
 border:1px solid #0a5;
-margin-top:4px;
+margin-top:8px;
 }
 
 #crowdlevel{
 height:100%;
 width:0%;
 background:#0f0;
+transition:0.4s;
 }
 
 #grid{
-flex:1;
 display:grid;
-grid-template-columns:repeat(7,1fr);
-grid-auto-rows:1fr;
-gap:6px;
-width:95%;
-margin:6px 0;
+grid-template-columns:repeat(7,50px);
+gap:8px;
+justify-content:center;
+margin-top:18px;
 }
 
 .number{
-
+width:50px;
+height:36px;
 display:flex;
 align-items:center;
 justify-content:center;
-
-background:linear-gradient(#0c0,#050);
-border:1px solid #0f0;
-border-radius:6px;
-
-color:#000;
-font-weight:bold;
-font-size:20px;
-
-box-shadow:
-0 3px 0 #040,
-0 6px 8px rgba(0,0,0,.6),
-inset 0 2px 3px rgba(255,255,255,.2);
-
-transition:.08s;
-
-user-select:none;
-
+cursor:pointer;
+border:3px solid transparent;
 }
 
-.number:active{
-
-transform:translateY(3px);
-
-box-shadow:
-0 1px 0 #030,
-0 2px 4px rgba(0,0,0,.6),
-inset 0 1px 2px rgba(255,255,255,.2);
-
-}
+.cold{color:#0f0;}
+.warm{color:#aa0;}
+.hot{color:#f50;}
+.extreme{color:#f00;}
 
 .mine{
-background:linear-gradient(#8ff,#0aa);
-color:#002;
+border:3px solid #7fffd4;
 }
 
-.cold{opacity:.6}
-.warm{opacity:.8}
-.hot{opacity:1}
-.extreme{color:#f33}
+.blink{
+animation:blink 1s infinite;
+}
+
+@keyframes blink{
+0%{opacity:1}
+50%{opacity:0.3}
+100%{opacity:1}
+}
 
 button{
-
-width:92%;
-max-width:420px;
-
-padding:14px;
-
-margin-bottom:8px;
-
-background:linear-gradient(#0f0,#060);
-
-border:none;
-border-radius:8px;
-
-font-size:20px;
-font-weight:bold;
-
-color:#000;
-
-box-shadow:0 4px 0 #030;
-
+margin-top:12px;
+padding:12px 24px;
+background:black;
+border:2px solid #0f0;
+color:#0f0;
+font-family:'Roboto Mono';
+cursor:pointer;
 }
 
-button:active{
-transform:translateY(3px);
-box-shadow:0 1px 0 #020;
+@media (max-width:700px){
+
+#grid{
+grid-template-columns:repeat(7,40px);
+gap:6px;
+}
+
+.number{
+width:40px;
+height:32px;
+}
+
+#lcd{
+width:95vw;
+}
+
+#leftpanel{
+width:90vw;
+}
+
 }
 
 </style>
@@ -190,7 +159,18 @@ box-shadow:0 1px 0 #020;
 <h1>Strategy Lottery</h1>
 
 <div id="subtitle">
-Predict the crowd. Strategy beats luck.
+Predict the crowd. Pick the numbers others avoid.<br>
+<b>Strategy beats luck.</b>
+</div>
+
+<div style="margin-bottom:20px">
+HOW TO WIN<br>
+1. Pick 6 numbers<br>
+2. Avoid numbers other players choose<br>
+3. If a number becomes popular, click it and change it<br>
+4. The least popular combination wins the jackpot<br><br>
+
+You are competing against <b>5 simulated players</b>.
 </div>
 
 <div id="layout">
@@ -198,16 +178,13 @@ Predict the crowd. Strategy beats luck.
 <div id="leftpanel">
 
 <div class="panel">
-<h3>CROWD</h3>
-<div id="hot"></div>
-</div>
-
-<div class="panel">
-<h3>LAST</h3>
+<h3>LAST ROUNDS</h3>
 <div id="history"></div>
 </div>
 
 </div>
+
+<div>
 
 <div id="lcd">
 
@@ -220,10 +197,11 @@ Predict the crowd. Strategy beats luck.
 <div class="metric">STRATEGY <span id="score">0</span></div>
 <div class="metric">WIN PROB <span id="prob">0%</span></div>
 
-<div>CROWD</div>
-
+<div style="margin-top:10px">
+CROWD PRESSURE
 <div id="crowdbar">
 <div id="crowdlevel"></div>
+</div>
 </div>
 
 </div>
@@ -231,6 +209,8 @@ Predict the crowd. Strategy beats luck.
 <div id="grid"></div>
 
 <button onclick="submitTicket()">SUBMIT</button>
+
+</div>
 
 </div>
 
@@ -246,10 +226,6 @@ let popularity=new Array(49).fill(0)
 let history=[]
 let cells=[]
 
-function vibrate(ms){
-if(navigator.vibrate) navigator.vibrate(ms)
-}
-
 const grid=document.getElementById("grid")
 
 for(let i=1;i<=49;i++){
@@ -257,11 +233,9 @@ for(let i=1;i<=49;i++){
 let cell=document.createElement("div")
 
 cell.className="number cold"
-cell.innerText=i
+cell.innerText=i.toString().padStart(2,"0")
 
 cell.onclick=()=>{
-
-vibrate(10)
 
 if(selected.includes(i)){
 
@@ -272,6 +246,10 @@ cell.classList.remove("mine")
 
 selected.push(i)
 cell.classList.add("mine")
+
+if(!submitted){
+cell.classList.add("blink")
+}
 
 }
 
@@ -284,8 +262,6 @@ cells.push(cell)
 
 function submitTicket(){
 
-vibrate([20,40,20])
-
 if(selected.length!=6){
 alert("Select 6 numbers")
 return
@@ -293,43 +269,11 @@ return
 
 submitted=true
 
+if(navigator.vibrate){
+navigator.vibrate(80)
 }
 
-function playWinSound(){
-
-const ctx=new (window.AudioContext||window.webkitAudioContext)()
-
-const notes=[
-
-261.63,329.63,392.00,
-523.25,659.25,783.99,
-1046.5,1318.5,1568
-
-]
-
-notes.forEach((f,i)=>{
-
-setTimeout(()=>{
-
-let o=ctx.createOscillator()
-let g=ctx.createGain()
-
-o.type="sine"
-o.frequency.value=f
-
-o.connect(g)
-g.connect(ctx.destination)
-
-g.gain.setValueAtTime(.001,ctx.currentTime)
-g.gain.exponentialRampToValueAtTime(.4,ctx.currentTime+.02)
-g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.8)
-
-o.start()
-o.stop(ctx.currentTime+.8)
-
-},i*130)
-
-})
+cells.forEach(c=>c.classList.remove("blink"))
 
 }
 
@@ -365,40 +309,24 @@ cells.forEach((cell,i)=>{
 cell.classList.remove("cold","warm","hot","extreme")
 
 let v=popularity[i]
+let n=(i+1).toString().padStart(2,"0")
 
-if(v==0) cell.classList.add("cold")
-else if(v==1) cell.classList.add("warm")
-else if(v==2) cell.classList.add("hot")
-else cell.classList.add("extreme")
+if(v==0){
+cell.innerText=n+" 🟩"
+cell.classList.add("cold")
+}
+
+else if(v==1){
+cell.innerText=n+" 🟨"
+cell.classList.add("warm")
+}
+
+else{
+cell.innerText=n+" 🟥"
+cell.classList.add("hot")
+}
 
 })
-
-}
-
-function updateHotCold(){
-
-let arr=[]
-
-for(let i=0;i<49;i++){
-arr.push({n:i+1,v:popularity[i]})
-}
-
-arr.sort((a,b)=>b.v-a.v)
-
-let top=arr.slice(0,10)
-
-let html=top.map(x=>{
-
-let emoji="🟩"
-
-if(x.v==1) emoji="🟨"
-if(x.v>=2) emoji="🟥"
-
-return x.n+" "+emoji
-
-}).join("<br>")
-
-document.getElementById("hot").innerHTML=html
 
 }
 
@@ -442,7 +370,6 @@ if(history.length>10) history.pop()
 updateHistory()
 
 if(submitted && Math.random()<0.15){
-playWinSound()
 alert("You won this round")
 }
 
@@ -451,6 +378,7 @@ selected=[]
 
 cells.forEach(c=>{
 c.classList.remove("mine")
+c.classList.remove("blink")
 })
 
 }
@@ -463,7 +391,6 @@ document.getElementById("timer").innerText="Round ends in "+time
 
 simulate()
 heatmap()
-updateHotCold()
 metrics()
 
 if(time<=0){
