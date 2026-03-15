@@ -4,7 +4,7 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Strategy Lottery</title>
 
@@ -30,17 +30,16 @@ margin-bottom:15px;
 #layout{
 display:flex;
 justify-content:center;
-gap:30px;
+gap:20px;
 flex-wrap:wrap;
-padding:10px;
 }
 
 #leftpanel{width:200px;}
 
 .panel{
 background:#021;
-padding:15px;
-margin-bottom:15px;
+padding:12px;
+margin-bottom:12px;
 border:1px solid #0a5;
 }
 
@@ -55,22 +54,28 @@ padding:18px;
 border-radius:18px;
 color:#132;
 width:420px;
-max-width:95vw;
 box-shadow:0 0 30px rgba(0,255,150,0.3) inset;
 }
 
-#timer{
-font-size:40px;
-}
+#timer{font-size:40px;}
 
 .metric{
 font-size:18px;
 margin-top:5px;
 }
 
+/* crowd gauge */
+
 #crowdbar{
-height:14px;
-background:#111;
+height:16px;
+background:linear-gradient(
+to right,
+#00ff88,
+#88ff00,
+#ffff00,
+#ff8800,
+#ff0000
+);
 border:1px solid #0a5;
 margin-top:8px;
 }
@@ -78,26 +83,35 @@ margin-top:8px;
 #crowdlevel{
 height:100%;
 width:0%;
-background:#0f0;
-transition:0.4s;
+background:#000;
+opacity:0.6;
+transition:0.3s;
 }
+
+/* grid */
 
 #grid{
 display:grid;
-grid-template-columns:repeat(7,50px);
-gap:8px;
-justify-content:center;
-margin-top:18px;
+grid-template-columns:repeat(7,1fr);
+gap:6px;
+width:95vw;
+max-width:520px;
+margin:20px auto;
 }
 
 .number{
-width:50px;
-height:36px;
+aspect-ratio:1/1;
 display:flex;
 align-items:center;
 justify-content:center;
 cursor:pointer;
-border:3px solid transparent;
+border:2px solid transparent;
+font-size:18px;
+
+background:linear-gradient(#111,#000);
+box-shadow:
+0 2px 4px #000,
+inset 0 1px 2px rgba(255,255,255,0.15);
 }
 
 .cold{color:#0f0;}
@@ -106,7 +120,7 @@ border:3px solid transparent;
 .extreme{color:#f00;}
 
 .mine{
-border:3px solid #7fffd4;
+border:2px solid #7fffd4;
 }
 
 .blink{
@@ -115,13 +129,13 @@ animation:blink 1s infinite;
 
 @keyframes blink{
 0%{opacity:1}
-50%{opacity:0.3}
+50%{opacity:0.4}
 100%{opacity:1}
 }
 
 button{
 margin-top:12px;
-padding:12px 24px;
+padding:12px 26px;
 background:black;
 border:2px solid #0f0;
 color:#0f0;
@@ -129,24 +143,32 @@ font-family:'Roboto Mono';
 cursor:pointer;
 }
 
-@media (max-width:700px){
+/* mobile */
 
-#grid{
-grid-template-columns:repeat(7,40px);
-gap:6px;
-}
+@media (max-width:900px){
 
-.number{
-width:40px;
-height:32px;
-}
-
-#lcd{
-width:95vw;
+#layout{
+flex-direction:column;
+align-items:center;
 }
 
 #leftpanel{
-width:90vw;
+display:flex;
+width:95%;
+gap:8px;
+}
+
+.panel{
+flex:1;
+font-size:12px;
+}
+
+#lcd{
+width:95%;
+}
+
+#timer{
+font-size:30px;
 }
 
 }
@@ -178,6 +200,16 @@ You are competing against <b>5 simulated players</b>.
 <div id="leftpanel">
 
 <div class="panel">
+<h3>HOT</h3>
+<div id="hot"></div>
+</div>
+
+<div class="panel">
+<h3>COLD</h3>
+<div id="cold"></div>
+</div>
+
+<div class="panel">
 <h3>LAST ROUNDS</h3>
 <div id="history"></div>
 </div>
@@ -198,7 +230,7 @@ You are competing against <b>5 simulated players</b>.
 <div class="metric">WIN PROB <span id="prob">0%</span></div>
 
 <div style="margin-top:10px">
-CROWD PRESSURE
+SAFE ← CROWD
 <div id="crowdbar">
 <div id="crowdlevel"></div>
 </div>
@@ -237,6 +269,8 @@ cell.innerText=i.toString().padStart(2,"0")
 
 cell.onclick=()=>{
 
+if(navigator.vibrate) navigator.vibrate(20)
+
 if(selected.includes(i)){
 
 selected=selected.filter(x=>x!==i)
@@ -268,12 +302,27 @@ return
 }
 
 submitted=true
+cells.forEach(c=>c.classList.remove("blink"))
 
-if(navigator.vibrate){
-navigator.vibrate(80)
 }
 
-cells.forEach(c=>c.classList.remove("blink"))
+function playWinSound(){
+
+let notes=["C4","E4","G4"]
+
+notes.forEach((n,i)=>{
+
+setTimeout(()=>{
+
+let audio=new Audio(
+"https://cdn.jsdelivr.net/gh/gleitz/midi-js-soundfonts@master/MusyngKite/acoustic_grand_piano-mp3/"+n+".mp3"
+)
+
+audio.play()
+
+},i*200)
+
+})
 
 }
 
@@ -309,24 +358,34 @@ cells.forEach((cell,i)=>{
 cell.classList.remove("cold","warm","hot","extreme")
 
 let v=popularity[i]
-let n=(i+1).toString().padStart(2,"0")
 
-if(v==0){
-cell.innerText=n+" 🟩"
-cell.classList.add("cold")
-}
-
-else if(v==1){
-cell.innerText=n+" 🟨"
-cell.classList.add("warm")
-}
-
-else{
-cell.innerText=n+" 🟥"
-cell.classList.add("hot")
-}
+if(v==0) cell.classList.add("cold")
+else if(v==1) cell.classList.add("warm")
+else if(v==2) cell.classList.add("hot")
+else cell.classList.add("extreme")
 
 })
+
+}
+
+function updateHotCold(){
+
+let arr=[]
+
+for(let i=0;i<49;i++){
+arr.push({n:i+1,v:popularity[i]})
+}
+
+arr.sort((a,b)=>b.v-a.v)
+
+let hot=arr.slice(0,5)
+let cold=arr.slice(-5)
+
+document.getElementById("hot").innerHTML=
+hot.map(x=>x.n+" 🔥").join("<br>")
+
+document.getElementById("cold").innerHTML=
+cold.map(x=>x.n+" ❄").join("<br>")
 
 }
 
@@ -370,6 +429,7 @@ if(history.length>10) history.pop()
 updateHistory()
 
 if(submitted && Math.random()<0.15){
+playWinSound()
 alert("You won this round")
 }
 
@@ -391,6 +451,7 @@ document.getElementById("timer").innerText="Round ends in "+time
 
 simulate()
 heatmap()
+updateHotCold()
 metrics()
 
 if(time<=0){
